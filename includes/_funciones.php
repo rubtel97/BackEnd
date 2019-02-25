@@ -10,13 +10,28 @@
 		case 'insertar_usuarios':
 			insertar_usuarios();
 			break;
-
+		case 'consultar_features':
+			consultar_features();
+			break;
+		case 'insertar_features':
+			insertar_features();
+			break;
 		default:
 		#code...
 		break;
 	}
 
-	function insertar_usuarios(){
+	function insertar_features(){
+		global $mysqli;
+		$icon = $_POST['icon'];
+		$titulo = $_POST['titulo'];
+		$texto = $_POST['texto'];
+
+		$sql = "INSERT INTO features VALUES ('', '$icon', '$titulo', '$texto')";
+		$resultado=mysqli_query($mysqli, $sql);
+	}
+
+		function insertar_usuarios(){
 		global $mysqli;
 		$nombre = $_POST['nombre'];
 		$correo = $_POST['correo'];
@@ -26,6 +41,17 @@
 		$sql = "INSERT INTO usuarios VALUES ('', '$nombre', '$correo', '$password', '$telefono', 1)";
 		$resultado=mysqli_query($mysqli, $sql);
 	}
+
+	function consultar_features(){
+	global $mysqli;
+	$consulta = "SELECT * FROM features";
+	$resultado = mysqli_query($mysqli, $consulta);
+	$arreglo = [];
+	while($fila = mysqli_fetch_array($resultado)){
+		array_push($arreglo, $fila);
+	}
+	echo json_encode($arreglo); //Imprime el JSON ENCODEADO
+}
 
 	function consultar_usuarios(){
 	global $mysqli;
