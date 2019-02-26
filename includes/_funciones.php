@@ -10,6 +10,9 @@
 		case 'insertar_usuarios':
 			insertar_usuarios();
 			break;
+		case 'eliminar_registro':
+			eliminar_usuarios();
+			break;
 		case 'consultar_features':
 			consultar_features();
 			break;
@@ -62,6 +65,16 @@
 		array_push($arreglo, $fila);
 	}
 	echo json_encode($arreglo); //Imprime el JSON ENCODEADO
+}
+	function eliminar_usuarios($id){
+	global $mysqli;
+	$consulta = "DELETE * FROM usuarios WHERE id_usr = $id";
+	$resultado = mysqli_query($mysqli, $consulta);
+	if($resultado){
+		echo"Se elimino correctamente";
+	}else{
+        alert("El regstro no se ha eliminado");
+      }
 }
 	function login(){
 		// Conectar a la base de datos
