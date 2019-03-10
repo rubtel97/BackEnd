@@ -13,6 +13,18 @@
 		case 'eliminar_registro':
 			eliminar_usuarios();
 			break;
+		case 'editar_usuarios':
+			editar_usuarios();
+			break;
+		case 'carga_foto':
+			carga_foto();
+			break;
+		case 'consultar_registro':
+			consultar_registro($_POST["registro"]);
+			break;
+		case 'eliminar_registro':
+			eliminar_usuarios($_POST["registro"]);
+			break;
 		case 'consultar_features':
 			consultar_features();
 			break;
@@ -34,17 +46,6 @@
 		$resultado=mysqli_query($mysqli, $sql);
 	}
 
-		function insertar_usuarios(){
-		global $mysqli;
-		$nombre = $_POST['nombre'];
-		$correo = $_POST['correo'];
-		$telefono = $_POST['telefono'];
-		$password = $_POST['password'];
-
-		$sql = "INSERT INTO usuarios VALUES ('', '$nombre', '$correo', '$password', '$telefono', 1)";
-		$resultado=mysqli_query($mysqli, $sql);
-	}
-
 	function consultar_features(){
 	global $mysqli;
 	$consulta = "SELECT * FROM features";
@@ -56,6 +57,37 @@
 	echo json_encode($arreglo); //Imprime el JSON ENCODEADO
 }
 
+	function carga_foto(){
+	if (isset($_FILES["foto"])) {
+		$file = $_FILES["foto"];
+		$nombre = $_FILES["foto"]["name"];
+		$temporal = $_FILES["foto"]["tmp_name"];
+		$tipo = $_FILES["foto"]["type"];
+		$tam = $_FILES["foto"]["size"];
+		$dir = "../../img/usuarios/";
+		$respuesta = [
+			"archivo" => "../img/usuarios/logotipo.png",
+			"status" => 0
+		];
+		if(move_uploaded_file($temporal, $dir.$nombre)){
+			$respuesta["archivo"] = "../img/usuarios/".$nombre;
+			$respuesta["status"] = 1;
+		}
+		echo json_encode($respuesta);
+	}
+}
+
+	function insertar_usuarios(){
+	global $mysqli;
+		$nombre = $_POST['nombre'];
+		$correo = $_POST['correo'];
+		$telefono = $_POST['telefono'];
+		$password = $_POST['password'];
+
+		$sql = "INSERT INTO usuarios VALUES ('', '$nombre', '$correo', '$password', '$telefono', 1)";
+		$resultado=mysqli_query($mysqli, $sql);
+	}
+
 	function consultar_usuarios(){
 	global $mysqli;
 	$consulta = "SELECT * FROM usuarios";
@@ -65,16 +97,48 @@
 		array_push($arreglo, $fila);
 	}
 	echo json_encode($arreglo); //Imprime el JSON ENCODEADO
+}	
+
+	function editar_usuarios(){
+	global $mysqli;
+	extract($_POST);
+	$consulta = "UPDATE usuarios SET nombre_usr =  '$nombre',correo_usr =  '$correo',password_usr =  '$password',telefono_usr =  '$telefono' WHERE id_usr = '$id'";
+	$resultado = mysqli_query($mysqli, $consulta);
+	if($resultado){
+		echo "Se editó correctamente";
+	}else{
+		echo "Se generó un error, intenta nuevamente";
+	}
+}
+
+	function insertar_usuarios(){
+	global $mysqli;
+	extract($_POST);
+	$consulta = "INSERT INTO usuarios VALUES('','$nombre','$correo','$password','$telefono',1)";
+	$resultado = mysqli_query($mysqli, $consulta);
+	if($resultado){
+		echo "Se insertó correctamente";
+	}else{
+		echo "Se generó un error, intenta nuevamente";
+	}
 }
 	function eliminar_usuarios($id){
 	global $mysqli;
-	$consulta = "DELETE * FROM usuarios WHERE id_usr = $id";
+	$consulta = "DELETE FROM usuarios WHERE id_usr = $id";
 	$resultado = mysqli_query($mysqli, $consulta);
 	if($resultado){
-		echo"Se elimino correctamente";
+		echo "Se eliminó correctamente";
 	}else{
-        alert("El regstro no se ha eliminado");
-      }
+		echo "Se generó un error, intenta nuevamente";
+	}
+}
+
+	function consultar_registro($id){
+	global $mysqli;
+	$query = "SELECT * FROM usuarios WHERE id_usr = $id LIMIT 1";
+	$stmt = mysqli_query($mysqli, $query);
+	$fila = mysqli_fetch_array($stmt);
+	echo json_encode($fila);
 }
 	function login(){
 		// Conectar a la base de datos

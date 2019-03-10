@@ -1,0 +1,31 @@
+body{
+	font-family: 'Raleway', sans-serif;
+}
+header{background: url("../img/background_header.jpg") no-repeat;height: 405px;background-size: cover;}
+#logotipo{margin-top: 40px;}
+header .nav{justify-content: flex-end;}
+header .nav-link{font-size: 13px;color: #fff;padding-top: 40px;}
+header .nav-link:hover{background: #fff;color: #31344e;}
+#button-movil,#close-movil, .menu-header-movil{display: none;}
+.menu-header-movil{transition: 2s all ease;}
+@media (min-width: 320px) and (max-width: 767px) {
+	#button-movil{color: #fff;font-size: 30px;position: absolute;right: 10px;top: 10px;display:block;}
+	.menu-header-principal{display: none;}
+	.menu-header-movil{background: #fff;width: 100%;height: 100%;position: fixed;overflow-y: hidden;justify-content: center;align-items: center;
+	}
+	.menu-header-movil .nav{
+		flex-direction: column;
+		text-align: center;
+	}
+	.menu-header-movil .nav-item{display: block; float: none;}
+	.menu-header-movil .nav-link{color: #333;padding-top: 15px;}
+	#logotipo{display:block;margin-top: 20px;}
+	#close-movil{display:block;position: absolute; font-size: 30px; color: #333; top: 10px;right: 10px;}
+}
+@media (min-width: 768px)  and (max-width: 991px) {
+	header{background: red;}
+}
+
+@media (min-width: 992px) and (max-width: 1199px)  {}
+
+@media (min-width: 1200px) {}
