@@ -125,7 +125,7 @@
           </table>
         </div>
         <div id="insert_data" class="view">
-          <form action="#" id="form_data">
+          <form action="#" id="form_data" enctype="multipart/form-data">
             <div class="row">
               <div class="col">
                 <div class="form-group">
@@ -136,6 +136,11 @@
                   <label for="correo">Correo Electrónico</label>
                   <input type="email" id="correo" name="correo" class="form-control">
                 </div>
+                <div class="form-group">
+                  <input type="file" name="foto" id="foto">
+                  <input type="hidden" name="ruta" id="ruta" readonly="readonly">
+                </div>
+                <div id="preview"></div>
               </div>
               <div class="col">
                 <div class="form-group">
@@ -186,8 +191,8 @@
           <td>${e.nombre_usr}</td>
           <td>${e.telefono_usr}</td>
           <td>
-          <a href="#" data-id="${e.id_usr}" class "editar_registro">Editar</a>
-          <a href="#" data-id="${e.id_usr}" class "eliminas_registro">Eliminar</a>
+          <a href="#" data-id="${e.id_usr}" class="editar_registro">Editar</a>
+          <a href="#" data-id="${e.id_usr}" class="eliminar_registro">Eliminar</a>
           </td>
           </tr>
           `;
@@ -203,18 +208,9 @@
       change_view('insert_data');
     });
     $("#guardar_datos").click(function(){
-      let nombre= $("#inputNombre").val();
-      let correo = $("#inputCorreo").val();
-      let telefono = $("#inputTelefono").val()
-      let password = $("#inputPassword").val()
       let obj ={
-        "accion" : "insertar_usuarios",
-        "nombre":nombre,
-        "correo":correo,
-        "telefono":telefono,
-        "password":password
+        "accion" : "insertar_usuarios"
       }
-
       $("#form_data").find("input").each(function(){
         $(this).removeClass("has-error");
         if($(this).val() != ""){
@@ -224,29 +220,72 @@
           return false;
         }
       });
-      $.post("includes/_funciones.php", obj, function(){});
-
-      $("#list-usuarios").on("click"."eliminar_registro",function(e){
-      e.prevenDefault()
-      let.id = $(this).data('id');
-      let cofirmacion = confirm("Desea elminiar este registro?");
-      console.log(confirmacion)
-      if (confirmacion){
-        let id= $(this).data('id'),
-          obj={
-            "accion" : "eliminar_registro"
-            "registro" : id
-          };
-
-          $.post("includes/_funciones.php", obj, function(respuesta){
-          alert(respuesta);
-          consultar()
-          });
-
-      }else{
-        alert("El regstro no se ha eliminado");
+      if($(this).data("editar") == 1){
+        obj["accion"] = "editar_usuarios";
+        obj["id"] = $(this).data('registro');
+        $(this).text("Guardar").removeData("editar").removeData("registro");
       }
-
+      $.post("includes/_funciones.php", obj, function(response){
+        alert(response);
+        change_view();
+        consultar();
+        $("#form_data")[0].reset();
+      });
+    });
+    $("#list-usuarios").on("click",".eliminar_registro",function(e){
+      e.preventDefault();
+      let confirmacion =  confirm("Desea eliminar este registro");
+      if(confirmacion){
+        let id = $(this).data('id'),
+        obj =  {
+          "accion" : "eliminar_registro",
+          "registro" : id
+        };
+        $.post("includes/_funciones.php", obj, function(respuesta){
+          alert(respuesta);
+          consultar();
+        });
+      }else{
+        alert("El registro no se ha eliminado");
+      }
+    });
+    $("#list-usuarios").on("click",".editar_registro", function(e){
+      let id = $(this).data('id'),
+      obj = {
+        "accion" : "consultar_registro",
+        "registro" : id
+      };
+      $("#form_data")[0].reset();
+      change_view("insert_data");
+      $("#guardar_datos").text("Editar").data("editar", 1).data('registro', id);
+      $.post('includes/_funciones.php', obj, function(r) {
+        $("#nombre").val(r.nombre_usr);
+        $("#correo").val(r.correo_usr);
+        $("#telefono").val(r.telefono_usr);
+        $("#password").val(r.password_usr);
+      },"JSON");
+    });
+    $("#foto").on("change", function (e) {
+      let formDatos = new FormData($("#form_data")[0]);
+      formDatos.append("accion", "carga_foto");
+      $.ajax({
+        url: "includes/_funciones.php",
+        type: "POST",
+        data: formDatos,
+        contentType: false,
+        processData: false,
+        success: function (datos) {
+          let respuesta = JSON.parse(datos);
+          if(respuesta.status == 0){
+            alert("No se cargó la foto");
+          }
+          let template = `
+          <img src="${respuesta.archivo}" alt="" class="img-fluid" />
+          `;
+          $("#ruta").val(respuesta.archivo);
+          $("#preview").html(template);
+        }
+      });
     });
     $("#main").find(".cancelar").click(function(){
       change_view();

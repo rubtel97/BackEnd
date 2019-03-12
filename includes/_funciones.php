@@ -10,9 +10,6 @@
 		case 'insertar_usuarios':
 			insertar_usuarios();
 			break;
-		case 'eliminar_registro':
-			eliminar_usuarios();
-			break;
 		case 'editar_usuarios':
 			editar_usuarios();
 			break;
@@ -31,31 +28,16 @@
 		case 'insertar_features':
 			insertar_features();
 			break;
+		case 'editar_features':
+			editar_features($_POST["features"]);
+			break;
+		case 'eliminar_features':
+			eliminar_features($_POST["features"]);
+			break;
 		default:
 		#code...
 		break;
 	}
-
-	function insertar_features(){
-		global $mysqli;
-		$icon = $_POST['icon'];
-		$titulo = $_POST['titulo'];
-		$texto = $_POST['texto'];
-
-		$sql = "INSERT INTO features VALUES ('', '$icon', '$titulo', '$texto')";
-		$resultado=mysqli_query($mysqli, $sql);
-	}
-
-	function consultar_features(){
-	global $mysqli;
-	$consulta = "SELECT * FROM features";
-	$resultado = mysqli_query($mysqli, $consulta);
-	$arreglo = [];
-	while($fila = mysqli_fetch_array($resultado)){
-		array_push($arreglo, $fila);
-	}
-	echo json_encode($arreglo); //Imprime el JSON ENCODEADO
-}
 
 	function carga_foto(){
 	if (isset($_FILES["foto"])) {
@@ -140,6 +122,40 @@
 	$fila = mysqli_fetch_array($stmt);
 	echo json_encode($fila);
 }
+
+	function consultar_features(){
+	global $mysqli;
+	$consulta = "SELECT * FROM features";
+	$resultado = mysqli_query($mysqli, $consulta);
+	$arreglo = [];
+	while($fila = mysqli_fetch_array($resultado)){
+		array_push($arreglo, $fila);
+	}
+	echo json_encode($arreglo); //Imprime el JSON ENCODEADO
+}
+
+	function insertar_features(){
+	global $mysqli;
+	$icon = $_POST['icon'];
+	$titulo = $_POST['titulo'];
+	$texto = $_POST['texto'];
+
+	$sql = "INSERT INTO features VALUES ('', '$icon', '$titulo', '$texto')";
+	$resultado=mysqli_query($mysqli, $sql);
+}
+
+	function editar_features(){
+	global $mysqli;
+	extract($_POST);
+	$consulta = "UPDATE features SET icon_usr = '$icon', titulo_usr = '$titulo', texto_usr = '$texto' WHERE id_usr = '$id'";
+	$resultado = mysqli_query($mysqli, $consulta);
+	if($resultado){
+		echo "Se editó correctamente";
+	}else{
+		echo "Se generó un error, intenta nuevamente";
+	}
+}
+
 	function login(){
 		// Conectar a la base de datos
 	global $mysqli;
@@ -148,13 +164,17 @@
 	$resultado = mysqli($mysqli, $consulta);
 	$fila = mysqli_fetch_array($resultado);
 	if($fila["password_usr"] == "$password" ){
+		echo "3";
 	}
+		}
+		elseif($fila['correo_usr'] == 0){
+			echo "2";
+		} 
+		elseif ($fila['correo_usr'] == $usuario && $fila['password_usr'] == $password) {
+			echo "1";
+		}
+		elseif ($fila['correo_usr'] == $usuario && $fila['password_usr'] != $password) {
+			echo "0";
+		}
 }
-		//Consultar a la base de datyos que el usuario exista
-			//si el usuario existe, consultar quie el password sea el correcto
-				//Si el password es corrcto, imprimir 1
-				//Si el password no es corrcto, imprimir 0
-			//Si el usuario no existe, imprimir 2
-		
-// echo "Tu usuario es: " $_POST["usuario"]. ", Tu contraseña es: ". $_POST["password"]
 ?>
